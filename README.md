@@ -1,7 +1,12 @@
-# Vue 3 + Vite
+# robot-companion
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Demo: https://robot-companion.vercel.app/
 
-## Recommended IDE Setup
+Robot Companion is an AI robot that can move, emote, and change facial expressions while chatting. For example, you can say "Let's party!", and the robot will start dancing without you explictly telling it to dance.
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+It is powered by [window.ai](https://github.com/alexanderatallah/window.ai) and three.js. The intention was to play around with the window.ai API, which allows you to plug in your own AI model (e.g. GPT-3.5) into an app. The 3D assets and animation are from the [Three.js skinning and morphing example](https://threejs.org/examples/webgl_animation_skinning_morph.html).
+
+Possible animations:
+* States: [Idle], [Walking], [Running], [Dance], [Death]
+* Emotes: [Jump], [Yes], [No], [Wave], [Punch], [Thumbs Up]
+* Facial Expressions: [Angry], [Surprised], [Sad]
