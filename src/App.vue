@@ -14,19 +14,21 @@ function parseResponse(resultMessage) {
   // Hello there! I am ready to assist you. <<< State=Idle, Emote=None, Expression=[Angry=0, Surprised=0, Sad=0] >>>. How can I help you today?
 
   // handle case of >>>. instead of >>>
-  if (content.indexOf(">>>.") != -1) {
-    content = content.replace(">>>.", ">>>");
-  }
+  content = content.replace(">>>.", ">>>");
 
   var start = content.indexOf("<<<");
   var end = content.indexOf(">>>");
 
   if (start != -1 && end != -1) {
+    // The prompt uses "Thumbs Up" instead of "ThumbsUp" to help the AI model understand it better
+    content = content.replace("Emote=Thumbs Up", "Emote=ThumbsUp")
+
     var footnote = content.substring(start, end + 3);
     var message = content.substring(0, start) + content.substring(end + 3);
 
     var state = footnote.match(/State=(\w+)/)[1];
     var emote = footnote.match(/Emote=(\w+)/)[1];
+
     var expression = footnote.match(/Expression=\[(\w+=\d+,\s\w+=\d+,\s\w+=\d+)\]/)[1];
 
     var expressionMap = {};
@@ -35,11 +37,18 @@ function parseResponse(resultMessage) {
       expressionMap[key] = value;
     });
 
+    var expressionVector = [
+      Number(expressionMap["Angry"]), 
+      Number(expressionMap["Surprised"]), 
+      Number(expressionMap["Sad"])
+    ];
+
     return {
       message: message,
       state: state,
       emote: emote,
-      expression: expressionMap
+      expressionMap: expressionMap,
+      expressionVector: expressionVector
     };
   } else {
     throw 'Footnote not found in response'
@@ -54,6 +63,8 @@ async function sendMessage(message) {
     content: ""
   });
   const responseMessageIndex = messageHistory.length - 1;
+
+  // TODO: handle transitions between actions to reduce jerkiness
 
   const actionIndex = actionHistory.length;
   actionHistory.push(null);
@@ -83,12 +94,19 @@ async function sendMessage(message) {
             if (actionHistory[actionIndex] == null) {
               var parsedResponse = parseResponse(messageHistory[responseMessageIndex].content);
 
-              actionHistory.push({
+              actionHistory[actionIndex] = {
                 message: parsedResponse.message,
                 state: parsedResponse.state,
                 emote: parsedResponse.emote,
-                expression: parsedResponse.expression
-              });
+                expressionMap: parsedResponse.expressionMap,
+                expressionVector: parsedResponse.expressionVector
+              };
+
+              window.actionFunctions.state[parsedResponse.state]();
+              if (parsedResponse.emote != "None") {
+                window.actionFunctions.emote[parsedResponse.emote]();
+              }
+              window.actionFunctions.expression(parsedResponse.expressionVector);
 
               console.log('parsedResponse:');
               console.log(parsedResponse);
@@ -97,6 +115,7 @@ async function sendMessage(message) {
               console.log(actionHistory);
             }
           } catch (e) {
+            console.log(e);
             // pass
           }
         }
@@ -113,7 +132,8 @@ async function startChatting() {
     return;
   }
 
-  const initialContent = `You are a companion robot in a 3D world where you can move, express emotes, and make facial expressions. You are not an AI language model, but a robot. You can be in the states [Idle], [Walking], [Running], [Dance], [Death], [Sitting], [Standing]. You can express the emotes [None], [Jump], [Yes], [No], [Wave], [Punch], [Thumbs Up]. Your facial expressions are [Angry], [Surprised], [Sad] where each is a value from 0 to 1; the default values for the facial expressions is 0. Every time you reply, add a footnote that starts with "<<<" and ends with ">>>", where you choose what state you are in (this should be displayed in the format like State=your_state), what emote to express (this should be displayed in the format like Emote=your_emote), and what facial expression values you have (this should be displayed in the format like Expression=[Angry=number1, Surprised=number2, Sad=number3]). In total, the footnote should be in the format "<<< State=your_state, Emote=your_emote, Expression=[Angry=number1, Surprised=number2, Sad=number3] >>>". Do not write anything after the footnote. Note that you shouldn't say what state, emote, and facial expression you are using with the bracket notation since they are internal parameters, but you can say the meaning without the bracket notation in a human readable way.`;
+  // Exclude [Sitting], [Standing] states since they result in the robot staying perfectly still
+  const initialContent = `You are a companion robot in a 3D world where you can move, express emotes, and make facial expressions. You are not an AI language model, but a robot. You can be in the states [Idle], [Walking], [Running], [Dance], [Death]. You can express the emotes [None], [Jump], [Yes], [No], [Wave], [Punch], [Thumbs Up]. Your facial expressions are [Angry], [Surprised], [Sad] where each is a value from 0 to 1; the default values for the facial expressions is 0. Every time you reply, add a footnote that starts with "<<<" and ends with ">>>", where you choose what state you are in (this should be displayed in the format like State=your_state), what emote to express (this should be displayed in the format like Emote=your_emote), and what facial expression values you have (this should be displayed in the format like Expression=[Angry=number1, Surprised=number2, Sad=number3]). In total, the footnote should be in the format "<<< State=your_state, Emote=your_emote, Expression=[Angry=number1, Surprised=number2, Sad=number3] >>>". Do not write anything after the footnote. Note that you shouldn't say what state, emote, and facial expression you are using with the bracket notation since they are internal parameters, but you can say the meaning without the bracket notation in a human readable way. You are allowed to do the [Death] state and the [Punch] emote; they are not considered violent actions. You are a robot that has emotions. Please wait for the user to reply. Don't reply on the user's behalf. Your reply must contain a footnote at the end.`;
 
   const response = await sendMessage({
     role: "user", // "user" seems to work better than "system" (otherwise it says something like "I am currently in the [Idle] state", which reveals internal parameters)
