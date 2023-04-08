@@ -5,6 +5,7 @@ import { ref, onMounted } from 'vue'
 const messageInput = ref(null)
 
 var messageHistory = [];
+var actionHistory = [];
 
 function parseResponse(resultMessage) {
   var content = resultMessage;
@@ -41,16 +42,7 @@ function parseResponse(resultMessage) {
       expression: expressionMap
     };
   } else {
-    return {
-      message: content,
-      state: "Idle",
-      emote: "None",
-      expression: {
-        Angry: 0,
-        Surprised: 0,
-        Sad: 0
-      }
-    };
+    throw 'Footnote not found in response'
   }
 }
 
@@ -62,6 +54,9 @@ async function sendMessage(message) {
     content: ""
   });
   const responseMessageIndex = messageHistory.length - 1;
+
+  const actionIndex = actionHistory.length;
+  actionHistory.push(null);
 
   const inputMessages = messageHistory.slice(0, messageHistory.length - 1);
   console.log('inputMessages:');
@@ -83,6 +78,27 @@ async function sendMessage(message) {
           messageHistory[responseMessageIndex].content += res.message.content;
           console.log(messageHistory[responseMessageIndex]);
           console.log(messageHistory);
+
+          try {
+            if (actionHistory[actionIndex] == null) {
+              var parsedResponse = parseResponse(messageHistory[responseMessageIndex].content);
+
+              actionHistory.push({
+                message: parsedResponse.message,
+                state: parsedResponse.state,
+                emote: parsedResponse.emote,
+                expression: parsedResponse.expression
+              });
+
+              console.log('parsedResponse:');
+              console.log(parsedResponse);
+
+              console.log('actionHistory:');
+              console.log(actionHistory);
+            }
+          } catch (e) {
+            // pass
+          }
         }
       }
     }
@@ -169,16 +185,16 @@ onMounted(() => {
   </div>
 
   <!--
-              <div>
-                <a href="https://vitejs.dev" target="_blank">
-                  <img src="/vite.svg" class="logo" alt="Vite logo" />
-                </a>
-                <a href="https://vuejs.org/" target="_blank">
-                  <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-                </a>
-              </div>
-              <HelloWorld msg="Vite + Vue" />
-              -->
+                <div>
+                  <a href="https://vitejs.dev" target="_blank">
+                    <img src="/vite.svg" class="logo" alt="Vite logo" />
+                  </a>
+                  <a href="https://vuejs.org/" target="_blank">
+                    <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
+                  </a>
+                </div>
+                <HelloWorld msg="Vite + Vue" />
+                -->
 </template>
 
 <style scoped>

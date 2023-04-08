@@ -46,6 +46,8 @@
 
     import * as THREE from 'three';
 
+    import TWEEN from '@tweenjs/tween.js';
+
     import Stats from 'three/addons/libs/stats.module.js';
     import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
 
@@ -55,6 +57,12 @@
     let camera, scene, renderer, model, face;
 
     const api = {state: 'Idle'};
+
+    const actionFunctions = {
+      state: {},
+      emote: {},
+      expression: null
+    };
 
     init();
     animate();
@@ -131,6 +139,10 @@
 
       gui = new GUI();
 
+      window.gui = gui;
+      window.api = api;
+      window.actionFunctions = actionFunctions;
+
       mixer = new THREE.AnimationMixer(model);
 
       actions = {};
@@ -162,6 +174,13 @@
 
       });
 
+      for (var i = 0; i < states.length; i++) {
+        const state = states[i];
+        actionFunctions.state[state] = function () {
+          fadeToAction(state, 0.5);
+        };
+      };
+
       statesFolder.open();
 
       // emotes
@@ -181,6 +200,17 @@
         emoteFolder.add(api, name);
 
       }
+
+      for (var i = 0; i < emotes.length; i++) {
+        const emote = emotes[i];
+        actionFunctions.emote[emote] = function () {
+          fadeToAction(emote, 0.2);
+
+          // TODO: test thumbs up, need to translate string (remove space)
+
+          mixer.addEventListener('finished', restoreState);
+        };
+      };
 
       function restoreState() {
 
@@ -210,6 +240,46 @@
         expressionFolder.add(face.morphTargetInfluences, i, 0, 1, 0.01).name(expressions[i]);
 
       }
+
+      function tweenExpressions(sourceVector, targetVector) {
+        console.log(sourceVector, targetVector);
+        const coords = {
+          x: sourceVector[0],
+          y: sourceVector[1],
+          z: sourceVector[2]
+        };
+        new TWEEN.Tween(coords)
+          .to({
+            x: targetVector[0],
+            y: targetVector[1],
+            z: targetVector[2]
+          }, 300)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onUpdate(function () {
+            face.morphTargetInfluences[0] = coords.x;
+            face.morphTargetInfluences[1] = coords.y;
+            face.morphTargetInfluences[2] = coords.z;
+          })
+          .start();
+      }
+
+      actionFunctions.expression = function (vector) {
+        tweenExpressions(face.morphTargetInfluences, vector);
+      }
+      /*
+      for (var i = 0; i < expressions.length; i++) {
+        (function (index) {
+          const expression = expressions[index];
+          actionFunctions.expression[expression] = function (value) {
+            console.log(face.morphTargetInfluences);
+            // face.morphTargetInfluences[i] = value;
+            console.log('index: ' + index);
+            
+            face.morphTargetInfluences[index] = value;
+          };
+        })(i);
+      };
+      */
 
       activeAction = actions['Idle'];
       activeAction.play();
@@ -256,6 +326,8 @@
       if (mixer) mixer.update(dt);
 
       requestAnimationFrame(animate);
+
+      TWEEN.update();
 
       renderer.render(scene, camera);
 
