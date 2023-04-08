@@ -135,61 +135,68 @@ async function sendMessage(message) {
   console.log('inputMessages:');
   console.log(inputMessages);
 
-  const response = await window.ai.getCompletion(
-    {
-      messages: inputMessages
-    },
-    {
-      onStreamResult: (res, error) => {
-        if (error) {
-          console.error(error);
-          return;
-        }
+  try {
+    const response = await window.ai.getCompletion(
+      {
+        messages: inputMessages
+      },
+      {
+        onStreamResult: (res, error) => {
+          if (error) {
+            console.error(error);
+            return;
+          }
 
-        if (res) {
-          messageHistory[responseMessageIndex].content += res.message.content;
-          // console.log(messageHistory[responseMessageIndex]);
-          // console.log(messageHistory);
+          if (res) {
+            messageHistory[responseMessageIndex].content += res.message.content;
+            // console.log(messageHistory[responseMessageIndex]);
+            // console.log(messageHistory);
 
-          try {
-            var strippedResponse = stripResponse(messageHistory[responseMessageIndex].content);
-            messageHistory[responseMessageIndex].displayContent = strippedResponse;
+            try {
+              var strippedResponse = stripResponse(messageHistory[responseMessageIndex].content);
+              messageHistory[responseMessageIndex].displayContent = strippedResponse;
 
-            submitScrollRequest();
+              submitScrollRequest();
 
-            var parsedResponse = parseResponse(messageHistory[responseMessageIndex].content);
+              var parsedResponse = parseResponse(messageHistory[responseMessageIndex].content);
 
-            if (actionHistory[actionIndex] == null) {
-              actionHistory[actionIndex] = {
-                message: parsedResponse.message,
-                state: parsedResponse.state,
-                emote: parsedResponse.emote,
-                expressionMap: parsedResponse.expressionMap,
-                expressionVector: parsedResponse.expressionVector
-              };
+              if (actionHistory[actionIndex] == null) {
+                actionHistory[actionIndex] = {
+                  message: parsedResponse.message,
+                  state: parsedResponse.state,
+                  emote: parsedResponse.emote,
+                  expressionMap: parsedResponse.expressionMap,
+                  expressionVector: parsedResponse.expressionVector
+                };
 
-              window.actionFunctions.state[parsedResponse.state]();
-              if (parsedResponse.emote != "None") {
-                window.actionFunctions.emote[parsedResponse.emote]();
+                window.actionFunctions.state[parsedResponse.state]();
+                if (parsedResponse.emote != "None") {
+                  window.actionFunctions.emote[parsedResponse.emote]();
+                }
+                window.actionFunctions.expression(parsedResponse.expressionVector);
+
+                console.log('parsedResponse:');
+                console.log(parsedResponse);
+
+                console.log('actionHistory:');
+                console.log(actionHistory);
               }
-              window.actionFunctions.expression(parsedResponse.expressionVector);
-
-              console.log('parsedResponse:');
-              console.log(parsedResponse);
-
-              console.log('actionHistory:');
-              console.log(actionHistory);
+            } catch (e) {
+              // console.log(e);
+              // pass
             }
-          } catch (e) {
-            // console.log(e);
-            // pass
           }
         }
       }
-    }
-  );
+    );
 
-  return response;
+    return response;
+  } catch (e) {
+    alert("Error: " + e);
+    console.error(e);
+
+    throw e;
+  }
 }
 
 async function startChatting() {
