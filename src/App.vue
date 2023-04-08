@@ -147,10 +147,9 @@ async function sendMessage(message) {
         }
 
         if (res) {
-          console.log(res);
           messageHistory[responseMessageIndex].content += res.message.content;
-          console.log(messageHistory[responseMessageIndex]);
-          console.log(messageHistory);
+          // console.log(messageHistory[responseMessageIndex]);
+          // console.log(messageHistory);
 
           try {
             var strippedResponse = stripResponse(messageHistory[responseMessageIndex].content);
@@ -182,7 +181,7 @@ async function sendMessage(message) {
               console.log(actionHistory);
             }
           } catch (e) {
-            console.log(e);
+            // console.log(e);
             // pass
           }
         }
@@ -208,15 +207,6 @@ async function startChatting() {
     role: "user", // "user" seems to work better than "system" (otherwise it says something like "I am currently in the [Idle] state", which reveals internal parameters)
     content: initialContent
   });
-
-
-  /*
-  console.log(response.message.content) // "I am an AI language model"
-
-  var parsedResponse = parseResponse(resultMessage);
-  console.log('parsedResponse:');
-  console.log(parsedResponse);
-  */
 }
 
 async function formSendMessage() {
@@ -272,18 +262,6 @@ async function formSendMessage() {
         href="https://github.com/zoan37/robot-companion">source code on GitHub</a>.
     </div>
   </div>
-
-  <!--
-                              <div>
-                                <a href="https://vitejs.dev" target="_blank">
-                                  <img src="/vite.svg" class="logo" alt="Vite logo" />
-                                </a>
-                                <a href="https://vuejs.org/" target="_blank">
-                                  <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-                                </a>
-                              </div>
-                              <HelloWorld msg="Vite + Vue" />
-                              -->
 </template>
 
 <style scoped>

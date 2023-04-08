@@ -230,7 +230,6 @@
       }
 
       function tweenExpressions(sourceVector, targetVector) {
-        console.log(sourceVector, targetVector);
         const coords = {
           x: sourceVector[0],
           y: sourceVector[1],
@@ -254,20 +253,6 @@
       actionFunctions.expression = function (vector) {
         tweenExpressions(face.morphTargetInfluences, vector);
       }
-      /*
-      for (var i = 0; i < expressions.length; i++) {
-        (function (index) {
-          const expression = expressions[index];
-          actionFunctions.expression[expression] = function (value) {
-            console.log(face.morphTargetInfluences);
-            // face.morphTargetInfluences[i] = value;
-            console.log('index: ' + index);
-            
-            face.morphTargetInfluences[index] = value;
-          };
-        })(i);
-      };
-      */
 
       activeAction = actions['Idle'];
       activeAction.play();
