@@ -15,18 +15,6 @@
 </head>
 
 <body>
-  <div id="info">
-    <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - skinning and morphing<br />
-    <p>
-      The animation system allows clips to be played individually, looped, or crossfaded with other
-      clips. This example shows a character looping in one of several base animation states, then transitioning
-      smoothly to one-time actions. Facial expressions are controlled independently with morph targets.
-    </p>
-    Model by
-    <a href="https://www.patreon.com/quaternius" target="_blank" rel="noopener">Tomás Laulhé</a>,
-    modifications by <a href="https://donmccurdy.com/" target="_blank" rel="noopener">Don McCurdy</a>. CC0.<br />
-  </div>
-
   <!-- Import maps polyfill -->
   <!-- Remove this when import maps will be widely supported -->
   <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -113,6 +101,8 @@
 
         createGUI(model, gltf.animations);
 
+        gui.hide();
+
       }, undefined, function (e) {
 
         console.error(e);
@@ -129,7 +119,7 @@
 
       // stats
       stats = new Stats();
-      container.appendChild(stats.dom);
+      // container.appendChild(stats.dom);
     }
 
     function createGUI(model, animations) {
@@ -205,8 +195,6 @@
         const emote = emotes[i];
         actionFunctions.emote[emote] = function () {
           fadeToAction(emote, 0.2);
-
-          // TODO: test thumbs up, need to translate string (remove space)
 
           mixer.addEventListener('finished', restoreState);
         };
