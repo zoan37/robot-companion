@@ -11,4 +11,10 @@ It is powered by [window.ai](https://github.com/alexanderatallah/window.ai) and 
 Possible animations:
 * States: [Idle], [Walking], [Running], [Dance], [Death]
 * Emotes: [Jump], [Yes], [No], [Wave], [Punch], [Thumbs Up]
-* Facial Expressions: [Angry], [Surprised], [Sad]
+* Facial Expressions: [Angry], [Surprised], [Sad] (each value between 0 and 1)
+
+### How it works
+
+The AI model is given an initial prompt that says it's an AI robot in a 3D world and lists the various states, emotes, and facial expressions possible, and that it should add a footnote at the end of a reply in the format `<<< State=your_state, Emote=your_emote, Expression=[Angry=number1, Surprised=number2, Sad=number3] >>>`.
+
+After receiving a reply from the AI model, the code parses the footnote and calls the corresponding animations, and the footnote is removed from the message before displaying it in the chat box.
