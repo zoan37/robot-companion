@@ -1,6 +1,8 @@
 # robot-companion
 
-Demo: https://robot-companion.vercel.app/
+<img width="500" alt="screenshot" src="https://user-images.githubusercontent.com/104385984/230722441-3f5834b2-da21-4ff1-af3e-be4d6a3f361b.png">
+
+**Demo:** https://robot-companion.vercel.app/
 
 Robot Companion is an AI robot that can move, emote, and change facial expressions while chatting. For example, you can say "Let's party!", and the robot will start dancing without you explictly telling it to dance.
 
