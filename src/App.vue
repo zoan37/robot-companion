@@ -88,7 +88,8 @@ function parseResponse(content) {
     var state = footnote.match(/State=(\w+)/)[1];
     var emote = footnote.match(/Emote=(\w+)/)[1];
 
-    var expression = footnote.match(/Expression=\[(\w+=\d+,\s\w+=\d+,\s\w+=\d+)\]/)[1];
+    var expressionMatches = footnote.match(/Expression=\[(\w+=\d+\.?\d*,\s\w+=\d+\.?\d*,\s\w+=\d+\.?\d*)\]/);
+    var expression = expressionMatches[1];
 
     var expressionMap = {};
     expression.split(", ").forEach((item) => {
